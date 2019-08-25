@@ -27,7 +27,6 @@ router.post(
   '/',
   multer.single('audio'),
   gcsMiddlewares.sendUploadToGCS,
-  songValidator,
   (req, res, next) => {
     console.log('File uploaded');
     const errors = validationResult(req);
