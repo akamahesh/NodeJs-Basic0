@@ -6,8 +6,6 @@ const gc = new Storage({
   projectId: 'bhajan-kosh'
 });
 
-console.log(gc.getBuckets().then(x => console.log(x)));
-
 function getPublicUrl(bucketName, filename) {
   return `https://storage.googleapis.com/${bucketName}/${filename}`;
 }

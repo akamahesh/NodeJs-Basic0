@@ -1,19 +1,23 @@
 const mongoose = require('mongoose');
-const UserSchema = new mongoose.Schema({
+const SongSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true
   },
-  email: {
-    type: String,
-    required: true,
-    unique: true
-  },
-  password: {
+  audio: {
     type: String,
     required: true
   },
-  avatar: {
+  image: {
+    type: String
+  },
+  description: {
+    type: String
+  },
+  duration: {
+    type: String
+  },
+  tags: {
     type: String
   },
   date: {
@@ -22,4 +26,4 @@ const UserSchema = new mongoose.Schema({
   }
 });
 
-module.exports = User = mongoose.model('user', UserSchema);
+module.exports = User = mongoose.model('song', SongSchema);
