@@ -6,7 +6,7 @@ const { check, validationResult } = require('express-validator');
 const Song = require('../../models/Song');
 const Tag = require('../../models/Tag');
 const multer = Multer({
-  storage: Multer.storage,
+  storage: Multer.storage,multer
   limits: {
     fileSize: 10 * 1024 * 1024 //Maximum file size is 10MB
   }
