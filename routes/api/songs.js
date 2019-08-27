@@ -3,7 +3,8 @@ const Multer = require('multer');
 const gcsMiddlewares = require('../../gcs_middleware');
 const router = express.Router();
 const { check, validationResult } = require('express-validator');
-
+const Song = require('../../models/Song');
+const Tag = require('../../models/Tag');
 const multer = Multer({
   storage: Multer.storage,
   limits: {
@@ -27,8 +28,7 @@ router.post(
   '/',
   multer.single('audio'),
   gcsMiddlewares.sendUploadToGCS,
-  (req, res, next) => {
-    console.log('File uploaded');
+  async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -37,13 +37,87 @@ router.post(
     if (req.file && req.file.gcsUrl) {
       audio = req.file.gcsUrl;
     }
-    var responseBody = {
-      file: audio,
-      body: req.body
-    };
+    const { name, description, duration } = req.body;
+    let tagy = req.body.tags;
+    try {
+      let tagArray = tagy.split(',');
+      let tags = [];
+      tagArray.forEach(async function(entry) {
+        if (entry) tags.push(entry);
+      });
+      //save song
+      let song = new Song({
+        name,
+        audio,
+        description,
+        duration,
+        tags
+      });
 
-    res.send(responseBody);
+      await song.save();
+
+      // return song
+      res.send(song);
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send('Server error');
+    }
   }
 );
 
+// @route GET api/songs
+// @desc Get all songs
+// @access public
+router.get('/', async (req, res) => {
+  try {
+    const songs = await Song.find().sort({ date: -1 });
+    res.json(songs);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// @route GET api/song/:id
+// @desc Get song by ID
+// @access Public
+router.get('/:id', async (req, res) => {
+  try {
+    const song = await Song.findById(req.params.id);
+    if (!song) {
+      return res.status(404).json({ msg: 'song not found' });
+    }
+    res.json(song);
+  } catch (err) {
+    console.error(err.message);
+    if (err.kind === 'ObjectId') {
+      return res.status(404).json({ msg: 'song not found' });
+    }
+    res.status(500).send('Server Error');
+  }
+});
+
+// @route DELETE api/tag/:id
+// @desc Delete a tag
+// @access Public
+router.delete('/:id', async (req, res) => {
+  try {
+    const song = await Song.findById(req.params.id);
+
+    if (!song) {
+      return res.status(404).json({ msg: 'Tag not found' });
+    }
+
+    await song.remove();
+    res.json({
+      msg: 'song removed'
+    });
+  } catch (err) {
+    console.error(err.message);
+    if (err.kind === 'ObjectId') {
+      return res.status(404).json({ msg: 'song not found' });
+    }
+    res.status(500).send('Server Error');
+  }
+});
 module.exports = router;
