@@ -18,11 +18,12 @@ function getPublicUrl(bucketName, filename) {
  * @return {*}
  */
 exports.sendUploadToGCS = (req, res, next) => {
-  if (!req.file) {
+  if (!req.files) {
     return next();
   }
   const bucketName = req.body.bucketName || DEFAULT_BUCKET_NAME;
   const bucket = gc.bucket(bucketName);
+  req.files.forEach(function(file) {});
   const gcsFileName = `${Date.now()}-${req.file.originalname}`;
   const file = bucket.file(gcsFileName);
 

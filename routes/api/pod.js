@@ -1,71 +1,75 @@
 const express = require('express');
 const router = express.Router();
 const { check, validationResult } = require('express-validator');
-const Song = require('../../models/Song');
+const Pod = require('../../models/Pod');
 
-var songValidator = [
+var podCreateValidator = [
   check('name', 'Name is required')
     .not()
     .isEmpty()
 ];
 
-// @route   POST api/songs
-// @desc    Create song
+// @route   POST api/pods
+// @desc    Create Tag
 // @access  Public
-router.post('/', songValidator, async (req, res, next) => {
+router.post('/', podCreateValidator, async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
-  const { name, audio, image, description, duration, tags } = req.body;
+  const { name, description, image, songs } = req.body;
   try {
+    let pod = await Pod.findOne({ name });
+    // see if tag exists
+    if (pod) {
+      res.status(400).json({ errors: [{ msg: 'Pod already exists' }] });
+    }
+
     //save tag
-    console.log('array ');
-    let song = new Song({
+    pod = new Pod({
       name,
-      audio,
-      image,
       description,
-      duration,
-      tags
+      image,
+      songs
     });
 
-    await song.save();
+    await pod.save();
+
     // return tag
-    res.send(song);
+    res.send(pod);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
   }
 });
 
-// @route GET api/songs
-// @desc Get all songs
+// @route GET api/pod
+// @desc Get all tags
 // @access public
 router.get('/', async (req, res) => {
   try {
-    const songs = await Song.find().sort({ date: -1 });
-    res.json(songs);
+    const pods = await Pod.find().sort({ date: -1 });
+    res.json(pods);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
   }
 });
 
-// @route GET api/song/:id
-// @desc Get song by ID
+// @route GET api/tag/:id
+// @desc Get tag by ID
 // @access Public
 router.get('/:id', async (req, res) => {
   try {
-    const song = await Song.findById(req.params.id);
-    if (!song) {
-      return res.status(404).json({ msg: 'song not found' });
+    const pod = await Pod.findById(req.params.id);
+    if (!pod) {
+      return res.status(404).json({ msg: 'pod not found' });
     }
-    res.json(song);
+    res.json(pod);
   } catch (err) {
     console.error(err.message);
     if (err.kind === 'ObjectId') {
-      return res.status(404).json({ msg: 'song not found' });
+      return res.status(404).json({ msg: 'pod not found' });
     }
     res.status(500).send('Server Error');
   }
@@ -76,20 +80,20 @@ router.get('/:id', async (req, res) => {
 // @access Public
 router.delete('/:id', async (req, res) => {
   try {
-    const song = await Song.findById(req.params.id);
+    const pod = await Pod.findById(req.params.id);
 
-    if (!song) {
-      return res.status(404).json({ msg: 'Tag not found' });
+    if (!pod) {
+      return res.status(404).json({ msg: 'Pod not found' });
     }
 
-    await song.remove();
+    await pod.remove();
     res.json({
-      msg: 'song removed'
+      msg: 'pod removed'
     });
   } catch (err) {
     console.error(err.message);
     if (err.kind === 'ObjectId') {
-      return res.status(404).json({ msg: 'song not found' });
+      return res.status(404).json({ msg: 'pod not found' });
     }
     res.status(500).send('Server Error');
   }

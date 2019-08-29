@@ -3,15 +3,13 @@ const TagSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+    trim: true
   },
   slug: {
     type: String
-  },
-  date: {
-    type: Date,
-    default: Date.now
   }
 });
+TagSchema.set('timestamps', true); // this will add createdAt and updatedAt timestamps
 
-module.exports = User = mongoose.model('tag', TagSchema);
+module.exports = Tag = mongoose.model('tag', TagSchema);

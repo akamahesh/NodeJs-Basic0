@@ -20,6 +20,7 @@ app.use('/api/users', require('./routes/api/users'));
 app.use('/api/profile', require('./routes/api/profile'));
 app.use('/api/tag', require('./routes/api/tag'));
 app.use('/api/songs', require('./routes/api/songs'));
+app.use('/api/pod', require('./routes/api/pod'));
 
 app.listen(PORT, () =>
   console.log(`Server started on port http://localhost:${PORT}`)

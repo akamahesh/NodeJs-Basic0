@@ -1,9 +1,7 @@
 const express = require('express');
-const multer = require('multer');
 const router = express.Router();
 const { check, validationResult } = require('express-validator');
 const Tag = require('../../models/Tag');
-var upload = multer();
 
 var tagCreateValidator = [
   check('name', 'Name is required')
@@ -14,7 +12,7 @@ var tagCreateValidator = [
 // @route   POST api/tags
 // @desc    Create Tag
 // @access  Public
-router.post('/', upload.any(), tagCreateValidator, async (req, res, next) => {
+router.post('/', tagCreateValidator, async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
